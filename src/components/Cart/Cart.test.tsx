@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Cart } from './Cart'
 import { mockCartItems } from '../../data/products'
+import { expect } from '@jest/globals'
 
 /**
  * Exercício 2 — Cart
@@ -24,29 +25,50 @@ import { mockCartItems } from '../../data/products'
 
 describe('Cart', () => {
   it('exibe a mensagem "Seu carrinho está vazio" quando não há itens', () => {
+    render(<Cart items={[]} onRemoveItem={jest.fn()} />)
     // TODO: renderize o Cart com items={[]} e onRemove={jest.fn()}
     // e verifique que a mensagem de carrinho vazio está na tela
+    expect(screen.getByText('Seu carrinho está vazio')).toBeInTheDocument()
   })
 
   it('renderiza todos os itens do carrinho', () => {
+     render(<Cart items={mockCartItems} onRemoveItem={jest.fn()} />)
     // TODO: renderize o Cart com mockCartItems
     // e verifique que os nomes dos dois produtos aparecem na tela
+
+  expect(screen.getByText('Camiseta Básica')).toBeInTheDocument()
+  expect(screen.getByText('Tênis Esportivo')).toBeInTheDocument()    
   })
 
   it('exibe o total correto somando os itens', () => {
+    render(<Cart items={mockCartItems} onRemoveItem={jest.fn()} />)
     // TODO: renderize o Cart com mockCartItems
     // e verifique que o total "R$\xa0299,70" aparece na tela
+  expect(screen.getByText('Total: R$ 299,70')).toBeInTheDocument()
   })
 
   it('chama onRemove com o id correto ao clicar em "Remover"', async () => {
+    const onRemove = jest.fn()
+    const user = userEvent.setup()
+
+    render(<Cart items={mockCartItems} onRemove={onRemove} />)
+
     // TODO: crie um mock para onRemove
     // renderize o Cart com mockCartItems e o mock
     // clique no botão "Remover" do primeiro item (Camiseta Básica, id=1)
     // e verifique que onRemove foi chamado com o id correto
+
+    const removeButtons = screen.getAllByText('Remover') 
+    await user.click(removeButtons[0])
+
+    expect(onRemove).toHaveBeenCalledWith(1)
   })
 
   it('não exibe o total quando o carrinho está vazio', () => {
+    render(<Cart items={[]} onRemoveItem={jest.fn()} />)
     // TODO: renderize o Cart com items={[]}
     // e use uma assertion *negativa* para verificar que nenhum texto de "Total" aparece
+    expect(screen.queryByText('Total')).not.toBeInTheDocument()
+    expect(screen.queryByText('R$')).not.toBeInTheDocument()
   })
 })
